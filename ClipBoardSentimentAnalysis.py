@@ -8,12 +8,15 @@ from plyer import notification
 
 root = None  # Initialize as None
 cliptext="Empty String"
+oldtext = "Empty String"
+sentimentMesaage="Looking Good"
 #root = None  # Initialize as None
 
 def send_notification():
     notification.notify(
         title='Sentiment!',
-        message='This is the body of your notification.',
+        #message='This is the body of your notification.',
+        message=sentimentMesaage,
         #app_icon='path/to/your/icon.ico',  # Optional: Path to an .ico file on Windows
         timeout=10,  # Notification will disappear after 10 seconds
     )
@@ -23,11 +26,19 @@ def send_notification():
 """
 def updateClipboard():
     global cliptext
-
-    send_notification()
+    global oldtext
+    
     cliptext = pyperclip.paste()
-    analyze_sentiment()
-    print(cliptext)
+
+    if cliptext == oldtext:
+        print("No action no new cliptext")
+    else:
+
+        analyze_sentiment()
+        print("Clip text is now analysed")
+        send_notification()
+        oldtext=cliptext
+    
     #processClipping(cliptext=cliptext)
     root.after(ms=5000, func=updateClipboard)
 
@@ -90,11 +101,17 @@ def analyze_sentiment():
     print(polarity)
     print(subjectivity)
 
+    text_area.delete("1.0", "end")
+    text_area.insert("end", content)
+    global sentimentMesaage
     if polarity > 0:
+        sentimentMesaage="Very Postive - Cool"
         sentiment_label.config(text=f"Sentiment: Positive (Polarity: {polarity:.2f}, Subjectivity: {subjectivity:.2f})")
     elif polarity < 0:
+        sentimentMesaage="Very Negative - Dont do it - Whoaaaa"
         sentiment_label.config(text=f"Sentiment: Negative (Polarity: {polarity:.2f}, Subjectivity: {subjectivity:.2f})")
     else:
+        sentimentMesaage="Middle for diddle - nothing to report"
         sentiment_label.config(text=f"Sentiment: Neutral (Polarity: {polarity:.2f}, Subjectivity: {subjectivity:.2f})")
 
 
